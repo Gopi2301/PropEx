@@ -25,16 +25,21 @@ export async function login(formData: FormData) {
 
     if (error) {
       console.error('Login error:', error)
+      if (error.code === 'email_not_confirmed') {
+        throw new Error('Email not confirmed. Please check your email for the confirmation link.')
+      }
       throw new Error(error.message || 'Failed to sign in. Please check your credentials.')
     }
 
     console.log('Login successful, user:', data.user?.email);
-    revalidatePath('/')
-    return redirect('/account')
+   
   } catch (error) {
     console.error('Login error in catch block:', error)
     throw error // Re-throw to be caught by the form's error handling
   }
+  
+  revalidatePath('/')
+  redirect('/account')
 }
 
 export async function signup(formData: FormData) {
@@ -62,15 +67,14 @@ export async function signup(formData: FormData) {
     throw new Error(signUpError.message || 'Failed to create account')
   }
 
-  // Update the user's profile with the username if needed
+  // Update the user id in users table
   if (authData.user) {
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ username })
-      .eq('id', authData.user.id)
+    const { error: userError } = await supabase
+      .from('users')
+      .insert({ user_id: authData.user.id, name: username, email })
 
-    if (profileError) {
-      console.error('Profile update error:', profileError)
+    if (userError) {
+      console.error('User update error:', userError)
       throw new Error('Account created but failed to set up profile')
     }
   }
@@ -82,18 +86,13 @@ export async function signup(formData: FormData) {
 export async function signOut() {
   const supabase = await createClient()
   
-  try {
-    const { error } = await supabase.auth.signOut()
-    
-    if (error) {
-      console.error('Sign out error:', error)
-      throw new Error(error.message || 'Failed to sign out')
-    }
-    
-    revalidatePath('/')
-    return redirect('/sign-in')
-  } catch (error) {
+  const { error } = await supabase.auth.signOut()
+  
+  if (error) {
     console.error('Sign out error:', error)
-    throw error
+    throw new Error(error.message || 'Failed to sign out')
   }
+  
+  revalidatePath('/')
+  redirect('/sign-in')
 }
