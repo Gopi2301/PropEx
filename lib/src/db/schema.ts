@@ -1,4 +1,4 @@
-import { integer, pgTable, varchar, text, pgEnum, timestamp, uuid } from "drizzle-orm/pg-core";
+import { integer, pgTable, varchar, text, pgEnum, timestamp, uuid, date } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Define enums to match the database
@@ -63,6 +63,7 @@ export const claims = pgTable("claims", {
   title: varchar({ length: 255 }).notNull(),
   description: text(),
   amount: integer().notNull(),
+  spent_date: date("spent_date").notNull(),
   status: claimStatusEnum('status').default('draft').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),

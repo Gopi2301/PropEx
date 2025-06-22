@@ -1,3 +1,5 @@
+import AddClaim from '@/components/ui/AddClaim';
+import { Button } from '@/components/ui/button';
 import { getRoleFromCookie } from '@/lib/actions/user.action';
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
@@ -17,7 +19,16 @@ const Employee = async () => {
   }
 
   return (
-    <div>Employee</div>
+    <div>
+      {/* top div with add claim button  */}
+      <div className="flex justify-end">
+       <AddClaim />
+      </div>
+      {/* claims table */}
+      <div className="mt-4 h-[calc(100vh-200px)] bg-amber-200">
+        
+      </div>
+    </div>
   )
 } 
 
