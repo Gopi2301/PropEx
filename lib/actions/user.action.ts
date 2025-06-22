@@ -139,3 +139,12 @@ export async function getUserRoles() {
   }
   return data
 }
+ // get role from cookie
+export const getRoleFromCookie = async () => {
+    const cookieStore = await cookies();
+    const role = cookieStore.get('role')?.value;
+    if (!role) {
+      throw new Error('No role found in cookie');
+    }
+    return role;
+  }
