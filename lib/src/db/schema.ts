@@ -88,7 +88,20 @@ export const claimsRelations = relations(claims, ({ one }) => ({
   }),
 }));
 
+// claim Attachments
+export const claimAttachments = pgTable("claim_attachments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  claim_id: uuid("claim_id").notNull().references(()=>claims.id, {onDelete: "cascade"}),
+  file_name: varchar({length: 255}).notNull(),
+  file_type: varchar({length: 100}).notNull(),
+  file_size: integer().notNull(),
+  file_path: varchar({length: 255}).notNull(),
+  uploaded_at: timestamp('uploaded_at').defaultNow().notNull(),
+})
+
 // Types
 export type Claim = typeof claims.$inferSelect;
 export type NewClaim = typeof claims.$inferInsert;
 export type ClaimStatus = typeof claimStatusEnum.enumValues[number];
+export type ClaimAttachment = typeof claimAttachments.$inferSelect;
+

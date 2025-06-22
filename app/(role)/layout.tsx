@@ -17,11 +17,20 @@ const RoleLayout = ({ children }: { children: React.ReactNode }) => {
                             <Image src="/original.png" alt="Logo" width={60} height={60} />
                         </div>
                         <Separator />
-                        {/* dashboard, audit, settings */}
-                        <div className = "flex flex-col gap-4 p-4">
-                            <Link href="/dashboard">Dashboard</Link>
-                            <Link href="/audit">Audit</Link>
-                            <Link href="/settings">Settings</Link>
+                        {/* Navigation items */}
+                        <div className="flex flex-col gap-4 p-4">
+                            <Link href="/dashboard" className="hover:text-primary transition-colors">
+                                Dashboard
+                            </Link>
+                            <Link href="/claims" className="hover:text-primary transition-colors">
+                                My Claims
+                            </Link>
+                            <Link href="/audit" className="hover:text-primary transition-colors">
+                                Audit
+                            </Link>
+                            <Link href="/settings" className="hover:text-primary transition-colors">
+                                Settings
+                            </Link>
                         </div>
                     </div>
                     <div className="mt-auto">
