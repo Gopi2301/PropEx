@@ -1,11 +1,8 @@
 import ClaimsTable from "@/components/claims/ClaimsTable";
 import AddClaim from "@/components/ui/AddClaim";
-import { Button } from "@/components/ui/button";
 import { getRoleFromCookie } from "@/lib/actions/user.action";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import React from "react";
 
 const Employee = async () => {
   const supabase = await createClient();
@@ -13,14 +10,15 @@ const Employee = async () => {
   if (error || !data.user) {
     redirect("/unauthorized");
   }
-  // get role from cookie
+  // get role from browser cookie
   const role = await getRoleFromCookie();
+  console.log("role", role);
   if (role !== "employee") {
     // If no role or invalid role, redirect to unauthorized
     console.warn(`Invalid or missing role. Expected 'employee', got '${role}'`);
     redirect("/unauthorized");
   }
- 
+
   return (
     <div>
       {/* top div with add claim button  */}

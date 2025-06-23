@@ -66,7 +66,7 @@ export const claims = pgTable("claims", {
   description: text(),
   amount: integer().notNull(),
   spent_date: date("spent_date").notNull(),
-  status: claimStatusEnum('status').default('draft').notNull(),
+  status: claimStatusEnum('status').default('submitted').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
   submitted_at: timestamp('submitted_at'),

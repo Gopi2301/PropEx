@@ -24,7 +24,13 @@ import { Input } from "./input";
 import { Button } from "./button";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
-const AddClaim = () => {
+
+// Update the AddClaim props
+interface AddClaimProps {
+  onClaimAdded?: () => void;
+}
+
+const AddClaim = ({ onClaimAdded }: AddClaimProps) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [attachments, setAttachments] = React.useState<FileList | null>(null);

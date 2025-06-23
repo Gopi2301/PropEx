@@ -148,7 +148,7 @@ export async function getUserRoles() {
  // get role from cookie
 export const getRoleFromCookie = async () => {
     try {
-      const cookieStore = cookies();
+      const cookieStore =await cookies();
       const role = cookieStore.get('role')?.value;
       
       if (!role) {
