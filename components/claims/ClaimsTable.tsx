@@ -2,7 +2,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { Claim } from "@/lib/src/db/schema";
+import type { Claim } from "@/lib/src/db/schema";
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PostgrestError } from "@supabase/supabase-js";
+import type { PostgrestError } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
 import { EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
@@ -59,7 +59,7 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
             <Button variant="outline" className="mr-2">
               <PencilIcon className="" />
             </Button>
-            <Button variant="outline" className="mr-2 ">
+            <Button variant="destructive" className="mr-2 ">
               <TrashIcon className="" />
             </Button>
           </>
@@ -73,7 +73,7 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
             <Button disabled variant="outline" className="mr-2">
               <PencilIcon className=" opacity-50" />
             </Button>
-            <Button disabled variant="outline" className="mr-2">
+            <Button disabled variant="destructive" className="mr-2">
               <TrashIcon className=" opacity-50" />
             </Button>
           </>
@@ -87,7 +87,7 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
             <Button disabled variant="outline" className="mr-2">
               <PencilIcon className=" opacity-50" />
             </Button>
-            <Button variant="outline" className="mr-2">
+            <Button variant="destructive" className="mr-2">
               <TrashIcon className=" " />
             </Button>
           </>
@@ -130,12 +130,6 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
           </TableRow>
         ))}
       </TableBody>
-      {/* <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-center">$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter> */}
     </Table>
   );
 };

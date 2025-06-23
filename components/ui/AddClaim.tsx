@@ -105,8 +105,8 @@ const AddClaim = ({ onClaimAdded }: AddClaimProps) => {
         setIsLoading(false);
         return;
       }
-      // add attachments to storage only if attachments are present and not empty 
-      if ( data && attachments && attachments.length > 0) {
+      // add attachments to storage only if attachments are present and not empty
+      if (data && attachments && attachments.length > 0) {
         console.log("Processing attachments:", attachments);
 
         // Process each attachment sequentially
@@ -149,7 +149,6 @@ const AddClaim = ({ onClaimAdded }: AddClaimProps) => {
               .single();
             if (updateData) {
               console.log("Attachment saved to database:", updateData);
-
             }
             if (updateError) {
               console.error(
