@@ -45,8 +45,14 @@ export async function login(formData: FormData) {
     const roles = await getUserRoles();
     const role = roles.find((role) => role.user_id === data.user.id);
     console.log('User roles:', role);
-    const cookieStore = await cookies();
-    cookieStore.set('role', role?.role);
+    const cookieStore = cookies();
+    cookieStore.set('role', role?.role, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true
+    });
     revalidatePath('/')
     redirect(`/${role?.role}`)
   }
@@ -141,10 +147,18 @@ export async function getUserRoles() {
 }
  // get role from cookie
 export const getRoleFromCookie = async () => {
-    const cookieStore = await cookies();
-    const role = cookieStore.get('role')?.value;
-    if (!role) {
-      throw new Error('No role found in cookie');
+    try {
+      const cookieStore = cookies();
+      const role = cookieStore.get('role')?.value;
+      
+      if (!role) {
+        console.warn('No role found in cookie - user might not be logged in');
+        return null;
+      }
+      
+      return role;
+    } catch (error) {
+      console.error('Error getting role from cookie:', error);
+      return null;
     }
-    return role;
   }

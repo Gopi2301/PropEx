@@ -23,11 +23,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "./input";
 import { Button } from "./button";
 import { createClient } from "@/utils/supabase/client";
-
+import { toast } from "sonner";
 const AddClaim = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [attachments, setAttachments] = React.useState<FileList | null>(null);
+
   const formSchema = z.object({
     title: z
       .string()
@@ -72,63 +73,105 @@ const AddClaim = () => {
     try {
       // add claim to database
       setIsLoading(true);
-    //   reset form
       handleReset();
       const supabase = createClient();
       const { data: userData } = await supabase.auth.getUser();
       if (!userData?.user?.id) {
         setError("User not Authenticated");
+        toast.error("User not Authenticated");
         setIsLoading(false);
         return;
       }
-      const { data, error } = await supabase.from("claims").insert({
-        user_id: userData.user.id,
-        title: values.title,
-        description: values.description,
-        amount: values.amount,
-        spent_date: values.spent_date,
-      });
-    if (error) {
-      setError(error.message);
-      setIsLoading(false);
-      return;
-    }
-      // add attachments to storage
-      if (attachments) {
-        console.log("attachments", attachments)
-        // file naming convention
-        const fileNames = Array.from(attachments).map(
-          (file, index) => `${userData.user.id}-${index}-${file.name}`
-        );
-        const filePath = `${userData.user.id}/${fileNames[0]}`;
-        const { data: storageData, error: storageError } =
-          await supabase.storage
-            .from("claim-attachments")
-            .upload(filePath, attachments[0], {
-              cacheControl: "3600",
-              upsert: false,
-            });
-            if(storageData){
-                console.log("storageData", storageData)
-              }
-            if(storageError){
-                console.log("storageError", storageError)
-              }
-        if (storageError) {
-          setError(storageError.message);
-          setIsLoading(false);
-          return;
-        }
-        console.log("attachments", attachments)
-       
+      const { data, error } = await supabase
+        .from("claims")
+        .insert({
+          user_id: userData.user.id,
+          title: values.title,
+          description: values.description,
+          amount: values.amount,
+          spent_date: values.spent_date,
+        })
+        .select()
+        .single();
+      if (error) {
+        setError(error.message);
+        toast.error("Failed to add claim");
+        setIsLoading(false);
+        return;
       }
-     
+      // add attachments to storage only if attachments are present and not empty 
+      if ( data && attachments && attachments.length > 0) {
+        console.log("Processing attachments:", attachments);
+
+        // Process each attachment sequentially
+        for (let i = 0; i < attachments.length; i++) {
+          const file = attachments[i];
+          const fileName = `${data?.id}-${i}-${file.name}`;
+          const filePath = `${userData.user.id}/${fileName}`;
+
+          try {
+            // Upload file to storage
+            const { data: storageData, error: storageError } =
+              await supabase.storage
+                .from("claim-attachments")
+                .upload(filePath, file, {
+                  cacheControl: "3600",
+                  upsert: false,
+                });
+
+            if (storageError) {
+              console.error(`Error uploading file ${file.name}:`, storageError);
+              setError(
+                `Failed to upload file: ${file.name}. Please try again.`
+              );
+              toast.error(`Failed to upload file ${file.name}`);
+              continue; // Skip to next file if upload fails
+            }
+
+            // Add attachment record to database
+            const { data: updateData, error: updateError } = await supabase
+              .from("claim_attachments")
+              .insert({
+                claim_id: data?.id,
+                file_name: fileName,
+                file_type: file.type,
+                file_size: file.size,
+                file_path: filePath,
+                uploaded_at: new Date().toISOString(),
+              })
+              .select()
+              .single();
+            if (updateData) {
+              console.log("Attachment saved to database:", updateData);
+
+            }
+            if (updateError) {
+              console.error(
+                `Error saving attachment ${file.name} to database:`,
+                updateError
+              );
+              // Continue with next file even if database update fails
+            } else {
+              console.log(`Successfully processed attachment: ${file.name}`);
+            }
+          } catch (err) {
+            console.error(
+              `Unexpected error processing file ${file.name}:`,
+              err
+            );
+            // Continue with next file on error
+          }
+        }
+        console.log("All attachments processed");
+      }
+      toast.success("Claim added successfully");
       setIsLoading(false);
       handleReset();
     } catch (error: any) {
       setError(error.message);
-    } finally {
       setIsLoading(false);
+    } finally {
+      toast.error("Failed to add claim");
     }
   };
   const handleReset = () => {
@@ -137,7 +180,7 @@ const AddClaim = () => {
       description: "",
       amount: "",
       spent_date: new Date().toISOString().split("T")[0], // Reset to today's date
-      attachments: undefined
+      attachments: undefined,
     });
     setAttachments(null); // Clear the local attachments state
   };

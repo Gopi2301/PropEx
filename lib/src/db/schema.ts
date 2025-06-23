@@ -57,6 +57,8 @@ export const claimStatusEnum = pgEnum('claim_status', [
 
 export const claims = pgTable("claims", {
   id: uuid('id').primaryKey().defaultRandom(),
+  // add rememberable id which has CLM prefix and incrementing from 1001
+  rememberable_id: varchar({ length: 255 }).notNull(),
   user_id: varchar({ length: 255 })
     .notNull()
     .references(() => usersTable.user_id, { onDelete: 'cascade' }),
