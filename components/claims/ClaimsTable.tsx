@@ -29,25 +29,8 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
   const [claims, setClaims] = useState(initialClaims);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<PostgrestError | null>(null);
-  // fetch claims
-  const fetchClaims = async () => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("claims")
-      .select("*")
-      .eq("user_id", userId);
-    if (error) {
-      console.warn("Error fetching claims:", error);
-      setError(error);
-      setLoading(false);
-    }
-    if (data) {
-      setClaims(data);
-      console.log("Claims fetched successfully:", data);
-      setLoading(false);
-    }
-  };
-  //  render actions based on role
+  
+  // render actions based on role
   const renderActions = (claim: Claim) => {
     if (userRole === "employee") {
       if (claim.status === "draft" || "submitted" || "reversed") {
@@ -97,7 +80,7 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
   };
   // fetch claims on mount
   useEffect(() => {
-    fetchClaims();
+    initialClaims
   }, []);
   return (
     <Table>

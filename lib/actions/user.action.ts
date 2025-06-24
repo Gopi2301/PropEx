@@ -40,12 +40,13 @@ export async function login(formData: FormData) {
         .from('users')
         .update({ last_login: new Date().toISOString() })
         .eq('user_id', data.user.id);
+      console.log('User last login updated successfully');
     }
     //  get user roles
-    const roles = await getUserRoles();
-    const role = roles.find((role) => role.user_id === data.user.id);
-    console.log('User roles:', role);
-    const cookieStore = cookies();
+    const roles = await getUserRoles(data.user.id);
+    console.log("roles", roles);
+    const role = roles[0].role;
+    const cookieStore = await cookies();
     cookieStore.set('role', role?.role, {
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 1 week
@@ -54,7 +55,8 @@ export async function login(formData: FormData) {
       httpOnly: true
     });
     revalidatePath('/')
-    redirect(`/${role?.role}`)
+    console.log("role", role);
+    redirect(`/${role}`)
   }
 
   catch (error) {
@@ -136,19 +138,21 @@ export async function signOut() {
   redirect('/sign-in')
 }
 
-export async function getUserRoles() {
+export async function getUserRoles(userId: string) {
+  console.log('User id: ', userId);
   const supabase = await createClient()
-  const { data, error } = await supabase.from('user_roles').select('*')
+  const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId)
   if (error) {
     console.error('Error fetching user roles:', error)
     throw new Error('Failed to fetch user roles')
   }
+  console.log('User roles: ', data);
   return data
 }
  // get role from cookie
 export const getRoleFromCookie = async () => {
     try {
-      const cookieStore =await cookies();
+      const cookieStore = await cookies();
       const role = cookieStore.get('role')?.value;
       
       if (!role) {
