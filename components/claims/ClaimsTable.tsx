@@ -19,6 +19,7 @@ import { EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import getStatusBadgeVariant from "@/constants";
 import { ClaimsTableProps, NormalizedClaim, ClaimStatus } from "@/types/claim";
+import Link from "next/link";
 
 const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
   const [claimData, setClaimData] = useState<NormalizedClaim[]>(claims);
@@ -35,7 +36,7 @@ const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
               <EyeIcon className="" />
             </Button>
             <Button variant="outline" className="mr-2">
-              <PencilIcon className="" />
+              <Link href={`/claimView/${claim.id}`}><PencilIcon className="" /></Link>
             </Button>
             <Button variant="destructive" className="mr-2 ">
               <TrashIcon className="" />
