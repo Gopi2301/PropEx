@@ -1,10 +1,13 @@
 import ClaimsTable from "@/components/claims/ClaimsTable";
 import AddClaim from "@/components/ui/AddClaim";
+import { fetchClaimById } from "@/lib/actions/claim.action";
 import { getRoleFromCookie, getUserRoles } from "@/lib/actions/user.action";
+import { normalizeEmployeeClaims } from "@/lib/normailzeClaim";
+import { testConnection } from "@/lib/src";
 import { Claim } from "@/lib/src/db/schema";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-
+import {userRole} from "@/types/user"
 
 const Employee = async () => {
   const supabase = await createClient();
@@ -13,37 +16,16 @@ const Employee = async () => {
     redirect("/sign-in");
   }
   // get role from browser cookie
-  const role = await getUserRoles(data.user.id);
-  console.log("role", role);
+    const role:userRole[] = await getUserRoles(data.user.id);
   if (role[0].role !== "employee") {
     // If no role or invalid role, redirect to unauthorized
     console.warn(`Invalid or missing role. Expected 'employee', got '${role}'`);
     redirect("/unauthorized");
   }
-// Fetch claims for the current user
-const fetchClaims = async (): Promise<Claim[]> => {
-  try {
-    const { data: claims, error } = await supabase
-      .from("claims")
-      .select("*")
-      .eq("user_id", data.user.id);
-    
-    if (error) {
-      console.warn("Error fetching claims:", error);
-      return [];
-    }
-    
-    console.log("Claims fetched successfully:", claims);
-    return claims as Claim[];
-  } catch (error) {
-    console.error("Unexpected error fetching claims:", error);
-    return [];
-  }
-};
 
-  // Fetch claims before rendering the component
-  const claims = await fetchClaims();
-  
+  const claims = await fetchClaimById(data.user.id);
+  const normalizedClaims = normalizeEmployeeClaims(claims);
+    await testConnection();
   return (
     <div>
       {/* top div with add claim button  */}
@@ -52,7 +34,7 @@ const fetchClaims = async (): Promise<Claim[]> => {
       </div>
       {/* claims table */}
       <div className="mt-4 h-[calc(100vh-200px)]">
-        <ClaimsTable initialClaims={claims} userRole={role[0].role} userId={data.user.id} />
+        <ClaimsTable claims={normalizedClaims} userRole={role[0].role} userId={data.user.id}/>
       </div>
     </div>
   );

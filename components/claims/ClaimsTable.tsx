@@ -18,22 +18,17 @@ import { Button } from "../ui/button";
 import { EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import getStatusBadgeVariant from "@/constants";
+import { ClaimsTableProps, NormalizedClaim, ClaimStatus } from "@/types/claim";
 
-type ClaimsTableProps = {
-  initialClaims: Claim[];
-  userRole: "employee" | "verifier" | "approver1" | "approver2";
-  userId: string;
-};
-
-const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
-  const [claims, setClaims] = useState(initialClaims);
+const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
+  const [claimData, setClaimData] = useState<NormalizedClaim[]>(claims);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<PostgrestError | null>(null);
   
   // render actions based on role
-  const renderActions = (claim: Claim) => {
+  const renderActions = (claim: NormalizedClaim) => {
     if (userRole === "employee") {
-      if (claim.status === "draft" || "submitted" || "reversed") {
+      if (claim.status === "draft" || claim.status === "submitted" || claim.status === "reversed") {
         return (
           <>
             <Button variant="outline" className="mr-2">
@@ -47,20 +42,6 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
             </Button>
           </>
         );
-      } else if (claim.status === "approved" || "pending" || "waitlisted") {
-        return (
-          <>
-            <Button variant="outline" className="mr-2">
-              <EyeIcon className="" />
-            </Button>
-            <Button disabled variant="outline" className="mr-2">
-              <PencilIcon className=" opacity-50" />
-            </Button>
-            <Button disabled variant="destructive" className="mr-2">
-              <TrashIcon className=" opacity-50" />
-            </Button>
-          </>
-        );
       } else {
         return (
           <>
@@ -68,20 +49,36 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
               <EyeIcon className="" />
             </Button>
             <Button disabled variant="outline" className="mr-2">
-              <PencilIcon className=" opacity-50" />
+              <PencilIcon className="opacity-50" />
             </Button>
-            <Button variant="destructive" className="mr-2">
-              <TrashIcon className=" " />
+            <Button disabled variant="destructive" className="mr-2">
+              <TrashIcon className="opacity-50" />
             </Button>
           </>
         );
       }
+    } else {
+      return (
+        <>
+          <Button variant="outline" className="mr-2">
+            <EyeIcon className="" />
+          </Button>
+          <Button disabled variant="outline" className="mr-2">
+            <PencilIcon className="opacity-50" />
+          </Button>
+          <Button variant="destructive" className="mr-2">
+            <TrashIcon className="" />
+          </Button>
+        </>
+      );
     }
   };
   // fetch claims on mount
   useEffect(() => {
-    initialClaims
-  }, []);
+    if (claims) {
+      setClaimData(claims);
+    }
+  }, [claims]);
   return (
     <Table>
       <TableCaption>A list of your recent Claims.</TableCaption>
@@ -96,7 +93,7 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {claims.map((claim) => (
+        {claimData.map((claim: NormalizedClaim) => (
           <TableRow key={claim.id}>
             <TableCell className="font-medium">
               {claim.rememberable_id}
@@ -106,7 +103,7 @@ const ClaimsTable = ({ initialClaims, userRole, userId }: ClaimsTableProps) => {
             <TableCell>{claim.amount}</TableCell>
             <TableCell>
               <Badge variant={getStatusBadgeVariant(claim.status)}>
-                {claim.status.charAt(0).toUpperCase() + claim.status.slice(1)}
+                {claim.status ? claim.status.charAt(0).toUpperCase() + claim.status.slice(1) : ""}
               </Badge>
             </TableCell>
             <TableCell className="text-center">{renderActions(claim)}</TableCell>
