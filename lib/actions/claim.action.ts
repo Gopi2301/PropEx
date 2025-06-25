@@ -1,49 +1,58 @@
-import { createClient } from "@/utils/supabase/server"
-import { claimAttachments, claims, usersTable } from "../src/db/schema"
-import db from "../src"
-import { eq } from "drizzle-orm"
+import { createClient } from "@/utils/supabase/server";
+import { claimAttachments, claims, usersTable } from "../src/db/schema";
+import db from "../src";
+import { eq } from "drizzle-orm";
 // import { eq } from "drizzle-orm";
-// employee 
+// employee
 export const fetchClaimByUserId = async (id: string) => {
-    console.log("id", id)
-    const result = await db.select().from(claims).where(eq(claims.user_id, id))
-    console.log("result from DB", result)
-    return result
-}
+  const result = await db.select().from(claims).where(eq(claims.user_id, id));
+  return result;
+};
 
 // verifier, approver1, approver2
-export const fetchAllClaims = async (): Promise<Array<{
-  claim: {
-    id: string;
-    rememberable_id: string;
-    user_id: string;
-    title: string;
-    description: string | null;
-    amount: number;
-    spent_date: Date;
-    status: 'draft' | 'submitted' | 'reviewed' | 'reversed' | 'approved' | 'rejected' | 'waitlisted';
-    created_at: Date;
-    updated_at: Date;
-    submitted_at: Date | null;
-    reviewed_at: Date | null;
-    resolved_at: Date | null;
-    resolved_by: string | null;
-    rejection_reason: string | null;
-    waitlist_reason: string | null;
-  };
-  user: {
-    name: string;
-  };
-}>> => {
-  // join claims with the name from users table
-  const result = await db.select({
-    claim: claims,
+export const fetchAllClaims = async (): Promise<
+  Array<{
+    claim: {
+      id: string;
+      rememberable_id: string;
+      user_id: string;
+      title: string;
+      description: string | null;
+      amount: number;
+      spent_date: Date;
+      status:
+        | "draft"
+        | "submitted"
+        | "reviewed"
+        | "reversed"
+        | "approved"
+        | "rejected"
+        | "waitlisted";
+      created_at: Date;
+      updated_at: Date;
+      submitted_at: Date | null;
+      reviewed_at: Date | null;
+      resolved_at: Date | null;
+      resolved_by: string | null;
+      rejection_reason: string | null;
+      waitlist_reason: string | null;
+    };
     user: {
-      name: usersTable.name
-    }
-  }).from(claims).innerJoin(usersTable, eq(claims.user_id, usersTable.user_id));
-  
-  console.log("result from Drizzle", result);
+      name: string;
+    };
+  }>
+> => {
+  // join claims with the name from users table
+  const result = await db
+    .select({
+      claim: claims,
+      user: {
+        name: usersTable.name,
+      },
+    })
+    .from(claims)
+    .innerJoin(usersTable, eq(claims.user_id, usersTable.user_id));
+
   return result as unknown as Array<{
     claim: {
       id: string;
@@ -53,7 +62,14 @@ export const fetchAllClaims = async (): Promise<Array<{
       description: string | null;
       amount: number;
       spent_date: Date;
-      status: 'draft' | 'submitted' | 'reviewed' | 'reversed' | 'approved' | 'rejected' | 'waitlisted';
+      status:
+        | "draft"
+        | "submitted"
+        | "reviewed"
+        | "reversed"
+        | "approved"
+        | "rejected"
+        | "waitlisted";
       created_at: Date;
       updated_at: Date;
       submitted_at: Date | null;
@@ -70,13 +86,35 @@ export const fetchAllClaims = async (): Promise<Array<{
 };
 
 export const fetchClaimByClaimId = async (id: string) => {
-    console.log("id", id)
-    const result = await db.select().from(claims).where(eq(claims.id, id))
-    console.log("result from DB", result)
-    return result
-}
-export const fetchClaimsWithAttachments = async(claimId: string) => {
- const result = await db.select().from(claimAttachments).where(eq(claimAttachments.claim_id, claimId))
- console.log("result from DB", result)
- return result
-}
+  console.log("id", id);
+  // join claims with name from users table, claim details from claims, and attachments from claim attachments
+  const row = await db
+    .select({
+      claim: claims,
+      user: { name: usersTable.name },
+      attachment: claimAttachments,
+    })
+    .from(claims)
+    .innerJoin(usersTable, eq(claims.user_id, usersTable.user_id))
+    .innerJoin(claimAttachments, eq(claims.id, claimAttachments.claim_id))
+    .where(eq(claims.id, id));
+  if (row.length === 0) {
+    return null;
+  }
+  const { claim, user } = row[0];
+  const attachments = row.map((r) => r.attachment);
+  
+  return {
+    claim,
+    user,
+    attachments,
+  };
+};
+export const fetchClaimsWithAttachments = async (claimId: string) => {
+  const result = await db
+    .select()
+    .from(claimAttachments)
+    .where(eq(claimAttachments.claim_id, claimId));
+  console.log("result from DB", result);
+  return result;
+};

@@ -11,7 +11,10 @@ interface PageProps {
 const Page = async ({ params }: PageProps) => {
   const {id} = params;
   const claims = await fetchClaimByClaimId(id);
-  return <ClaimViewClient initialClaims={claims} />
+  if(!claims){
+    return <div>No claims found</div>
+  }
+  return <ClaimViewClient initialClaims={[claims]} />
 };
 
 export default Page;

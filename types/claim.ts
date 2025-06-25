@@ -68,4 +68,11 @@ export interface Claim {
     resolved_by: string | null;
     waitlist_reason: string | null;
 }
-  
+export interface ClaimAttachment {
+    id: string;
+    file_name: string;
+    file_type: string;
+    file_size: number;
+    file_path: string;
+    uploaded_at: Date;
+}
