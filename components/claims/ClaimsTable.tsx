@@ -33,10 +33,10 @@ const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
         return (
           <>
             <Button variant="outline" className="mr-2">
-              <EyeIcon className="" />
+            <Link href={`/claimView/${claim.id}`}><EyeIcon className="" /></Link>
             </Button>
             <Button variant="outline" className="mr-2">
-              <Link href={`/claimView/${claim.id}`}><PencilIcon className="" /></Link>
+              <PencilIcon className="" />
             </Button>
             <Button variant="destructive" className="mr-2 ">
               <TrashIcon className="" />

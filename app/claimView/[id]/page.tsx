@@ -1,14 +1,17 @@
-"use client"
-import { useParams } from 'next/navigation';
-import React from 'react'
+import React from "react";
+import ClaimViewClient from "./ClaimViewClient";
+import { fetchClaimByClaimId} from "@/lib/actions/claim.action";
 
-const page = () => {
-    const {id} = useParams();
-    console.log(id);
-    
-  return (
-    <div>Claim View</div>
-  )
+interface PageProps {
+  params: {
+    id: string;
+  };
 }
 
-export default page
+const Page = async ({ params }: PageProps) => {
+  const {id} = params;
+  const claims = await fetchClaimByClaimId(id);
+  return <ClaimViewClient initialClaims={claims} />
+};
+
+export default Page;

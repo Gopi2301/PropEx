@@ -1,6 +1,6 @@
 import ClaimsTable from "@/components/claims/ClaimsTable";
 import AddClaim from "@/components/ui/AddClaim";
-import { fetchClaimById } from "@/lib/actions/claim.action";
+import { fetchClaimByUserId } from "@/lib/actions/claim.action";
 import { getRoleFromCookie, getUserRoles } from "@/lib/actions/user.action";
 import { normalizeEmployeeClaims } from "@/lib/normailzeClaim";
 import { testConnection } from "@/lib/src";
@@ -23,7 +23,7 @@ const Employee = async () => {
     redirect("/unauthorized");
   }
 
-  const claims = await fetchClaimById(data.user.id);
+  const claims = await fetchClaimByUserId(data.user.id);
   const normalizedClaims = normalizeEmployeeClaims(claims);
     await testConnection();
   return (

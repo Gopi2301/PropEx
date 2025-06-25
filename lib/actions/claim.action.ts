@@ -1,9 +1,10 @@
 import { createClient } from "@/utils/supabase/server"
-import { claims, usersTable } from "../src/db/schema"
+import { claimAttachments, claims, usersTable } from "../src/db/schema"
 import db from "../src"
-import { eq } from "drizzle-orm";
+import { eq } from "drizzle-orm"
+// import { eq } from "drizzle-orm";
 // employee 
-export const fetchClaimById = async (id: string) => {
+export const fetchClaimByUserId = async (id: string) => {
     console.log("id", id)
     const result = await db.select().from(claims).where(eq(claims.user_id, id))
     console.log("result from DB", result)
@@ -67,3 +68,15 @@ export const fetchAllClaims = async (): Promise<Array<{
     };
   }>;
 };
+
+export const fetchClaimByClaimId = async (id: string) => {
+    console.log("id", id)
+    const result = await db.select().from(claims).where(eq(claims.id, id))
+    console.log("result from DB", result)
+    return result
+}
+export const fetchClaimsWithAttachments = async(claimId: string) => {
+ const result = await db.select().from(claimAttachments).where(eq(claimAttachments.claim_id, claimId))
+ console.log("result from DB", result)
+ return result
+}

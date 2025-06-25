@@ -50,4 +50,22 @@ export interface NormalizedClaim {
   waitlist_reason: string | null;
   submitted_by?: string; // For verifier/approvers
 }
+
+export interface Claim {
+    id: string;
+    rememberable_id: string;
+    user_id: string;
+    title: string;
+    description: string | null;
+    amount: number;
+    spent_date: string | Date;
+    status: 'draft' | 'submitted' | 'reviewed' | 'reversed' | 'approved' | 'rejected' | 'waitlisted';
+    created_at: string | Date;
+    updated_at: string | Date;
+    submitted_at: string | Date | null;
+    reviewed_at: string | Date | null;
+    resolved_at: string | Date | null;
+    resolved_by: string | null;
+    waitlist_reason: string | null;
+}
   
