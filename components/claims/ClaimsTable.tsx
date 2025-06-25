@@ -85,6 +85,7 @@ const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
       <TableHeader>
         <TableRow>
           <TableHead className="w-[100px]">Claim ID</TableHead>
+         {userRole ==="verifier" && <TableHead>Submitted By</TableHead>}
           <TableHead>Title</TableHead>
           <TableHead>Spent Date</TableHead>
           <TableHead>Amount</TableHead>
@@ -98,6 +99,7 @@ const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
             <TableCell className="font-medium">
               {claim.rememberable_id}
             </TableCell>
+            {userRole === "verifier" && <TableCell>{claim.submitted_by}</TableCell>}
             <TableCell>{claim.title}</TableCell>
             <TableCell>{claim.spent_date}</TableCell>
             <TableCell>{claim.amount}</TableCell>

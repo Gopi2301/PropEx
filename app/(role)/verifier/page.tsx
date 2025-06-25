@@ -90,7 +90,7 @@ const VerifierPage = async () => {
         <ClaimsTable 
           claims={normalizedClaims} 
           userRole={role[0].role} 
-          userId={data.user.id} 
+          userId={data.user.id}
         />
       </div>
     </>
