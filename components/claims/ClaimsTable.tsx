@@ -1,25 +1,23 @@
 "use client";
 import React from "react";
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
-import type { Claim } from "@/lib/src/db/schema";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
-import { EyeIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { PencilIcon, TrashIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import getStatusBadgeVariant from "@/constants";
 import { ClaimsTableProps, NormalizedClaim, ClaimStatus } from "@/types/claim";
 import Link from "next/link";
+import ClaimView from "./claimView/ClaimView";
 
 const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
   const [claimData, setClaimData] = useState<NormalizedClaim[]>(claims);
@@ -32,9 +30,7 @@ const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
       if (claim.status === "draft" || claim.status === "submitted" || claim.status === "reversed") {
         return (
           <>
-            <Button variant="outline" className="mr-2">
-            <Link href={`/claimView/${claim.id}`}><EyeIcon className="" /></Link>
-            </Button>
+            <ClaimView claim={claim} />
             <Button variant="outline" className="mr-2">
               <PencilIcon className="" />
             </Button>
@@ -46,9 +42,7 @@ const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
       } else {
         return (
           <>
-            <Button variant="outline" className="mr-2">
-              <EyeIcon className="" />
-            </Button>
+            <ClaimView claim={claim} />
             <Button disabled variant="outline" className="mr-2">
               <PencilIcon className="opacity-50" />
             </Button>
@@ -61,9 +55,7 @@ const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
     } else {
       return (
         <>
-          <Button variant="outline" className="mr-2">
-            <EyeIcon className="" />
-          </Button>
+          <ClaimView claim={claim} />
           <Button disabled variant="outline" className="mr-2">
             <PencilIcon className="opacity-50" />
           </Button>
