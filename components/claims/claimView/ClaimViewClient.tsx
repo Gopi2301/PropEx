@@ -25,32 +25,7 @@ const ClaimViewClient = ({ claimId, claim: initialClaim }: ClaimViewClientProps)
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchClaim = async () => {
-      if (!claimId || initialClaim) return;
-      
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/claims/${claimId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch claim');
-        }
-        const data = await response.json();
-        setClaimData(data);
-      } catch (error) {
-        console.error('Error fetching claim:', error);
-        setError('Failed to fetch claim');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (isOpen && !initialClaim) {
-      fetchClaim();
-    }
-  }, [claimId, isOpen, initialClaim]);
-
-  const currentClaim = initialClaim || claimData?.claim;
+  const currentClaim = initialClaim
   const user = claimData?.user;
 
   if (isLoading && !currentClaim) {
@@ -64,7 +39,7 @@ const ClaimViewClient = ({ claimId, claim: initialClaim }: ClaimViewClientProps)
   if (!currentClaim) {
     return null;
   }
-
+console.log("claimData", currentClaim)
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -85,11 +60,11 @@ const ClaimViewClient = ({ claimId, claim: initialClaim }: ClaimViewClientProps)
           <p>Status: {currentClaim.status}</p>
           {user?.name && <p>Submitted By: {user.name}</p>}
         </div>
-        {claimData?.attachments && claimData.attachments.length > 0 && (
+        {currentClaim.attachments && currentClaim.attachments.length > 0 && (
           <div>
             <h4>Attachments:</h4>
             <ul>
-              {claimData.attachments.map(attachment => (
+              {currentClaim.attachments.map(attachment => (
                 <li key={attachment.id}>
                   <a href={attachment.file_path} target="_blank" rel="noopener noreferrer">
                     {attachment.file_name}

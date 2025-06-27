@@ -5,8 +5,22 @@ import { eq } from "drizzle-orm";
 // import { eq } from "drizzle-orm";
 // employee
 export const fetchClaimByUserId = async (id: string) => {
-  const result = await db.select().from(claims).where(eq(claims.user_id, id));
-  return result;
+  const claimsData = await db.select().from(claims).where(eq(claims.user_id, id));
+  const claimId = claimsData.map((claim) => claim.id);
+  const attachmentsData = [] as { attachments: any[] }[];
+  for(const claim of claimId){
+    const attachments = await db.select().from(claimAttachments).where(eq(claimAttachments.claim_id, claim));
+    attachmentsData.push({
+      attachments,
+    });
+  }
+  const claimsWithAttachments = claimsData.map((claim, index)=>{
+    return {
+      ...claim,
+      attachments: attachmentsData[index].attachments,
+    }
+  })
+  return claimsWithAttachments;
 };
 
 // verifier, approver1, approver2

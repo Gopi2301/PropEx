@@ -9,6 +9,24 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import {userRole} from "@/types/user"
 
+interface claims {
+    user_id: string;
+    rememberable_id: string;
+    title: string;
+    description: string | null;
+    amount: number;
+    spent_date: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    submitted_at: string | null;
+    reviewed_at: string | null;
+    resolved_at: string | null;
+    resolved_by: string | null;
+    rejection_reason: string | null;
+    waitlist_reason: string | null;
+    attachments: any[];
+}
 const Employee = async () => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
@@ -24,7 +42,7 @@ const Employee = async () => {
   }
 
   const claims = await fetchClaimByUserId(data.user.id);
-  const normalizedClaims = normalizeEmployeeClaims(claims);
+  console.log("claims", claims);
     await testConnection();
   return (
     <div>
@@ -34,7 +52,7 @@ const Employee = async () => {
       </div>
       {/* claims table */}
       <div className="mt-4 h-[calc(100vh-200px)]">
-        <ClaimsTable claims={normalizedClaims} userRole={role[0].role} userId={data.user.id}/>
+        <ClaimsTable claims={claims} userRole={role[0].role} userId={data.user.id}/>
       </div>
     </div>
   );

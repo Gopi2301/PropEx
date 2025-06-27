@@ -1,9 +1,8 @@
 import { Claim } from "@/lib/src/db/schema";
 
 export type ClaimsTableProps = {
-    claims: NormalizedClaim[];
-    userRole: string;
-    userId: string;
+    claim: Claim;
+    attachments: ClaimAttachment[];
 };
 
 export interface ClaimWithUser {
@@ -48,7 +47,8 @@ export interface NormalizedClaim {
   resolved_by: string | null;
   rejection_reason: string | null;
   waitlist_reason: string | null;
-  submitted_by?: string; // For verifier/approvers
+  submitted_by?: string;
+  attachments?: ClaimAttachment[];
 }
 
 export interface Claim {

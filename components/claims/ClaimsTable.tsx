@@ -19,7 +19,12 @@ import { ClaimsTableProps, NormalizedClaim, ClaimStatus } from "@/types/claim";
 import Link from "next/link";
 import ClaimView from "./claimView/ClaimView";
 
-const ClaimsTable = ({ claims, userRole, userId }: ClaimsTableProps ) => {
+interface claims {
+  claims: any[];
+  userRole: string;
+  userId: string;
+}
+const ClaimsTable = ({ claims, userRole, userId } :claims) => {
   const [claimData, setClaimData] = useState<NormalizedClaim[]>(claims);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<PostgrestError | null>(null);
