@@ -42,7 +42,6 @@ const Employee = async () => {
   }
 
   const claims = await fetchClaimByUserId(data.user.id);
-  console.log("claims", claims);
     await testConnection();
   return (
     <div>

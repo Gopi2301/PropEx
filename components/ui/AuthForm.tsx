@@ -45,7 +45,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log('Form submitted with values:', values);
       setIsLoading(true);
       setError(null);
       
@@ -58,16 +57,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
         formData.append('username', values.username.trim());
       }
       
-      console.log('Sending form data:', Object.fromEntries(formData.entries()));
+
       
       if (type === 'sign-in') {
-        console.log('Attempting to sign in...');
         const loginResult = await login(formData);
-        console.log('Login result:', loginResult);
       } else {
-        console.log('Attempting to sign up...');
+        
         const signupResult = await signup(formData);
-        console.log('Signup result:', signupResult);
+        
       }
     } catch (err) {
       console.error('Form submission error:', err);

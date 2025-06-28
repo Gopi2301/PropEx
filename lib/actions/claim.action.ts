@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { claimAttachments, claims, usersTable } from "../src/db/schema";
 import db from "../src";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 // import { eq } from "drizzle-orm";
 // employee
 export const fetchClaimByUserId = async (id: string) => {
@@ -24,83 +24,25 @@ export const fetchClaimByUserId = async (id: string) => {
 };
 
 // verifier, approver1, approver2
-export const fetchAllClaims = async (): Promise<
-  Array<{
-    claim: {
-      id: string;
-      rememberable_id: string;
-      user_id: string;
-      title: string;
-      description: string | null;
-      amount: number;
-      spent_date: Date;
-      status:
-        | "draft"
-        | "submitted"
-        | "reviewed"
-        | "reversed"
-        | "approved"
-        | "rejected"
-        | "waitlisted";
-      created_at: Date;
-      updated_at: Date;
-      submitted_at: Date | null;
-      reviewed_at: Date | null;
-      resolved_at: Date | null;
-      resolved_by: string | null;
-      rejection_reason: string | null;
-      waitlist_reason: string | null;
-    };
-    user: {
-      name: string;
-    };
-  }>
-> => {
-  // join claims with the name from users table
-  const result = await db
-    .select({
-      claim: claims,
-      user: {
-        name: usersTable.name,
-      },
-    })
-    .from(claims)
-    .innerJoin(usersTable, eq(claims.user_id, usersTable.user_id));
-
-  return result as unknown as Array<{
-    claim: {
-      id: string;
-      rememberable_id: string;
-      user_id: string;
-      title: string;
-      description: string | null;
-      amount: number;
-      spent_date: Date;
-      status:
-        | "draft"
-        | "submitted"
-        | "reviewed"
-        | "reversed"
-        | "approved"
-        | "rejected"
-        | "waitlisted";
-      created_at: Date;
-      updated_at: Date;
-      submitted_at: Date | null;
-      reviewed_at: Date | null;
-      resolved_at: Date | null;
-      resolved_by: string | null;
-      rejection_reason: string | null;
-      waitlist_reason: string | null;
-    };
-    user: {
-      name: string;
-    };
-  }>;
-};
-
+export const fetchAllClaims = async ()=>{
+ const claimsData = await db.select().from(claims).orderBy(desc(claims.created_at));
+ const claimId = claimsData.map((claim) => claim.id);
+ const attachmentsData = [] as { attachments: any[] }[];
+ for(const claim of claimId){
+   const attachments = await db.select().from(claimAttachments).where(eq(claimAttachments.claim_id, claim));
+   attachmentsData.push({
+     attachments,
+   });
+ }
+ const claimsWithAttachments = claimsData.map((claim, index)=>{
+   return {
+     ...claim,
+     attachments: attachmentsData[index].attachments,
+   }
+ })
+ return claimsWithAttachments;
+}
 export const fetchClaimByClaimId = async (id: string) => {
-  console.log("id", id);
   // join claims with name from users table, claim details from claims, and attachments from claim attachments
   const row = await db
     .select({
@@ -129,6 +71,5 @@ export const fetchClaimsWithAttachments = async (claimId: string) => {
     .select()
     .from(claimAttachments)
     .where(eq(claimAttachments.claim_id, claimId));
-  console.log("result from DB", result);
   return result;
 };

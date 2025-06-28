@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { Claim, ClaimAttachment } from "@/lib/src/db/schema";
 import { NormalizedClaim } from "@/types/claim";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, FileIcon } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -33,7 +33,6 @@ interface ClaimViewClientProps {
 const attachmentUrl = (attachment: ClaimAttachment) => {
   // https://tfrcrrtavnbqgselqkdz.supabase.co/storage/v1/object/public/claim-attachments/440a2748-8133-4e24-9647-675685fa8330/22237c5f-ee9a-4d50-9a2c-ae09a34ec6a1-0-mobile-logo.png
   const url = `https://tfrcrrtavnbqgselqkdz.supabase.co/storage/v1/object/public/claim-attachments/${attachment.file_path}`;
-  console.log("url", url);
   return url;
 };
 
@@ -60,7 +59,6 @@ const ClaimViewClient = ({
   if (!currentClaim) {
     return null;
   }
-  console.log("claimData", currentClaim);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -86,11 +84,12 @@ const ClaimViewClient = ({
               {currentClaim.attachments.map((attachment) => (
                 <li key={attachment.id} className="relative">
                   <div className="group aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg bg-gray-100">
-                    <Image
-                      src={attachmentUrl(attachment)}
-                      alt={attachment.file_name}
-                      width={100}
-                      height={100}
+                    {attachment.file_type === "image/jpeg" || attachment.file_type === "image/png" ? (
+                      <Image
+                        src={attachmentUrl(attachment)}
+                        alt={attachment.file_name}
+                        width={100}
+                        height={100}
                       className="object-contain w-full h-full"
                       style={{ 
                         maxWidth: "100%",
@@ -98,6 +97,11 @@ const ClaimViewClient = ({
                         aspectRatio:'3/2'
                       }}
                     />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full">
+                        <FileIcon className="w-12 h-12" />
+                      </div>
+                    )}
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Link
                         href={attachmentUrl(attachment)}

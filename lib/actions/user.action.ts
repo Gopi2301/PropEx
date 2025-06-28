@@ -10,14 +10,8 @@ export async function login(formData: FormData) {
   const supabase = await createClient()
 
   try {
-    // Log form data for debugging
-    const formDataObj = Object.fromEntries(formData.entries());
-    console.log('Form data received:', formDataObj);
-
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-
-    console.log('Attempting to sign in with:', { email });
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -32,19 +26,14 @@ export async function login(formData: FormData) {
       throw new Error(error.message || 'Failed to sign in. Please check your credentials.')
     }
 
-    console.log('Login successful, user:', data.user?.email);
-
-    // Update last login time
     if (data.user) {
       await supabase
         .from('users')
         .update({ last_login: new Date().toISOString() })
         .eq('user_id', data.user.id);
-      console.log('User last login updated successfully');
     }
     //  get user roles
     const roles = await getUserRoles(data.user.id);
-    console.log("roles", roles);
     const role = roles[0].role;
     const cookieStore = await cookies();
     cookieStore.set('role', role?.role, {
@@ -55,7 +44,6 @@ export async function login(formData: FormData) {
       httpOnly: true
     });
     revalidatePath('/')
-    console.log("role", role);
     redirect(`/${role}`)
   }
 
@@ -139,14 +127,11 @@ export async function signOut() {
 }
 
 export async function getUserRoles(userId: string) {
-  console.log('User id: ', userId);
   const supabase = await createClient()
   const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId)
   if (error) {
-    console.error('Error fetching user roles:', error)
     throw new Error('Failed to fetch user roles')
   }
-  console.log('User roles: ', data);
   return data
 }
  // get role from cookie

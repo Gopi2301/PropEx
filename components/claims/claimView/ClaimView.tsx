@@ -7,7 +7,6 @@ interface ClaimViewProps {
 }
 
 const ClaimView = ({ claim }: ClaimViewProps) => {
-  console.log("claim for table",claim)
   return <ClaimViewClient claim={claim} />;
 };
 
