@@ -70,6 +70,7 @@ export interface Claim {
 }
 export interface ClaimAttachment {
     id: string;
+    claim_id: string;
     file_name: string;
     file_type: string;
     file_size: number;

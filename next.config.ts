@@ -8,6 +8,17 @@ const nextConfig: NextConfig = {
       allowedOrigins: []
     },
   },
+  images:{
+    domains: ['tfrcrrtavnbqgselqkdz.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'tfrcrrtavnbqgselqkdz.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/claim-attachments/**',
+      },
+    ],
+  },
   // This ensures that API routes are properly bundled
   webpack: (config, { isServer }) => {
     if (!isServer) {
